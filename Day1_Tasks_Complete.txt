@@ -1,0 +1,325 @@
+DEVOPS / PRODUCTION SUPPORT LOG PRACTICE - DAY 1
+Level: Beginner
+Role: L1 Application / Production Support Engineer
+
+Scenario:
+You are working as an L1 support engineer. A team member gives you app.log and asks you to investigate a few basic issues using Linux commands.
+
+Important:
+Try to solve the problems yourself using grep, awk, sed, sort, uniq, cut, head and tail.
+Do not look for solutions online.
+When you are finished, send me your commands and I will review them.
+
+
+
+TASK 1 - Basic log filtering
+Show all lines containing ERROR.
+--
+suchethdza@Ubuntu:~/Level1$ ls
+app.log
+suchethdza@Ubuntu:~/Level1$ awk '/ERROR/ {print}' app.log
+or
+grep "ERROR" app.log
+
+2026-10-04 09:07:19 ERROR auth user=priya action=login status=FAILED
+2026-10-04 09:10:15 ERROR app user=vikas action=get_orders status=500
+2026-10-04 09:17:09 ERROR app user=anita action=payment status=FAILED
+2026-10-04 09:23:58 ERROR auth user=rahul action=login status=FAILED
+2026-10-04 09:27:12 ERROR app user=priya action=get_orders status=500
+2026-10-04 09:33:49 ERROR app user=vikas action=payment status=FAILED
+2026-10-04 09:37:54 ERROR auth user=anita action=login status=FAILED
+2026-10-04 09:43:29 ERROR app user=rahul action=payment status=FAILED
+2026-10-04 09:49:21 ERROR app user=anita action=get_orders status=500
+--
+
+
+
+TASK 2 - Count errors
+Find the total number of ERROR entries.
+--
+suchethdza@Ubuntu:~/Level1$ awk '/ERROR/ {count++} END {print "The Count of ERROR is",count}' app.log
+The Count of ERROR is 9
+
+/ERROR/     → find ERROR
+count++     → increase counter
+END         → execute after reading the file
+--
+
+
+
+TASK 3 - Find warnings
+Show all WARN entries.
+--
+suchethdza@Ubuntu:~/Level1$ awk '/WARN/ {print}' app.log
+or
+grep "WARN" app.log
+
+2026-10-04 09:05:27 WARN app user=rahul action=search status=slow
+2026-10-04 09:13:47 WARN app user=vikas action=search status=slow
+2026-10-04 09:20:14 WARN app user=priya action=get_orders status=slow
+2026-10-04 09:30:05 WARN app user=anita action=payment status=slow
+2026-10-04 09:40:41 WARN app user=rahul action=get_orders status=slow
+2026-10-04 09:47:38 WARN app user=priya action=search status=slow
+--
+
+
+
+TASK 4 - Count warnings
+Find the total number of WARN entries.
+--
+suchethdza@Ubuntu:~/Level1$ awk '/WARN/ {count++} END {print "The Count of Warning is",count}' app.log
+The Count of Warning is 6
+--
+
+
+
+TASK 5 - Find failed logins
+Show only lines where the action is login and the status is FAILED.
+--
+suchethdza@Ubuntu:~/Level1$ awk '/action=login/ && /status=FAILED/  {print}' app.log
+2026-10-04 09:07:19 ERROR auth user=priya action=login status=FAILED
+2026-10-04 09:23:58 ERROR auth user=rahul action=login status=FAILED
+2026-10-04 09:37:54 ERROR auth user=anita action=login status=FAILED
+--
+
+
+
+TASK 6 - Extract usernames
+From the ERROR lines, print only the username.
+Try to avoid printing the complete log line.
+--
+suchethdza@Ubuntu:~/Level1$ awk '/ERROR/' app.log > ERROR.log
+suchethdza@Ubuntu:~/Level1$ ls
+app.log  ERROR.log
+
+suchethdza@Ubuntu:~/Level1$ awk '{print $5}' ERROR.log
+user=priya
+user=vikas
+user=anita
+user=rahul
+user=priya
+user=vikas
+user=anita
+user=rahul
+user=anita
+
+Ideally we want:
+
+priya
+vikas
+anita
+rahul
+
+You can improve it later using something like:
+
+awk '/ERROR/ {split($5,a,"="); print a[2]}' app.log
+--
+
+
+
+TASK 7 - Extract time
+From all ERROR lines, print only the time.
+--
+suchethdza@Ubuntu:~/Level1$ awk '{print $2}' ERROR.log
+09:07:19
+09:10:15
+09:17:09
+09:23:58
+09:27:12
+09:33:49
+09:37:54
+09:43:29
+09:49:21
+--
+
+
+
+TASK 8 - Find payment problems
+Show all lines related to the payment action.
+--
+awk '/action=payment/ {print}' app.log
+
+Because there are also successful payments:
+
+rahul  payment  200
+anita  payment  200
+
+This is an important real-world lesson: don't assume the problem; follow the ticket exactly.
+--
+
+
+
+TASK 9 - Find server errors
+Show only entries where the status is 500.
+--
+suchethdza@Ubuntu:~/Level1$ awk '/status=500/ {print}' app.log
+2026-10-04 09:10:15 ERROR app user=vikas action=get_orders status=500
+2026-10-04 09:27:12 ERROR app user=priya action=get_orders status=500
+2026-10-04 09:49:21 ERROR app user=anita action=get_orders status=500
+--
+
+
+
+TASK 10 - Count problems by user
+Find which users appear in ERROR entries.
+suchethdza@Ubuntu:~/Level1$ awk '{print $5}' ERROR.log
+user=priya
+user=vikas
+user=anita
+user=rahul
+user=priya
+user=vikas
+user=anita
+user=rahul
+user=anita
+
+Try to display the username and the number of ERROR entries for that user.
+suchethdza@Ubuntu:~/Level1$ awk '/user=priya/ {count++} END {print "The number of error entries for priya",count}' ERROR.log
+The number of error entries for priya 2
+suchethdza@Ubuntu:~/Level1$ awk '/user=vikas/ {count++} END {print "The number of error entries for vikas",count}' ERROR.log
+The number of error entries for vikas 2
+suchethdza@Ubuntu:~/Level1$ awk '/user=anita/ {count++} END {print "The number of error entries for anita",count}' ERROR.log
+The number of error entries for anita 3
+suchethdza@Ubuntu:~/Level1$ awk '/user=rahul/ {count++} END {print "The number of error entries for rahul",count}' ERROR.log
+The number of error entries for rahul 2
+
+or
+But in a real job, imagine there are 500 users.
+awk '/ERROR/ {count[$5]++} END {for (user in count) print user, count[user]}' app.log
+
+
+
+TASK 11 - Small sed practice
+Create a modified output where INFO is replaced with LOG.
+Do not modify the original app.log.
+--
+suchethdza@Ubuntu:~/Level1$ sed 's/INFO/LOG/g' app.log > modified_app.log
+suchethdza@Ubuntu:~/Level1$ cat modified_app.log
+
+2026-10-04 09:00:12 LOG auth user=rahul action=login status=SUCCESS
+2026-10-04 09:01:05 LOG auth user=anita action=login status=SUCCESS
+2026-10-04 09:02:18 LOG app user=rahul action=view_dashboard status=200
+2026-10-04 09:03:44 LOG app user=anita action=view_dashboard status=200
+2026-10-04 09:04:11 LOG app user=vikas action=view_dashboard status=200
+2026-10-04 09:05:27 WARN app user=rahul action=search status=slow
+2026-10-04 09:06:02 LOG app user=rahul action=search status=200
+2026-10-04 09:07:19 ERROR auth user=priya action=login status=FAILED
+2026-10-04 09:08:33 LOG app user=priya action=view_home status=200
+2026-10-04 09:09:41 LOG app user=anita action=view_profile status=200
+2026-10-04 09:10:15 ERROR app user=vikas action=get_orders status=500
+2026-10-04 09:11:22 LOG app user=rahul action=get_orders status=200
+2026-10-04 09:12:08 LOG app user=anita action=get_orders status=200
+2026-10-04 09:13:47 WARN app user=vikas action=search status=slow
+2026-10-04 09:14:05 LOG app user=vikas action=search status=200
+2026-10-04 09:15:31 LOG auth user=priya action=login status=SUCCESS
+2026-10-04 09:16:44 LOG app user=priya action=view_dashboard status=200
+2026-10-04 09:17:09 ERROR app user=anita action=payment status=FAILED
+2026-10-04 09:18:26 LOG app user=rahul action=logout status=SUCCESS
+2026-10-04 09:19:51 LOG app user=anita action=view_dashboard status=200
+2026-10-04 09:20:14 WARN app user=priya action=get_orders status=slow
+2026-10-04 09:21:37 LOG app user=priya action=get_orders status=200
+2026-10-04 09:22:42 LOG app user=vikas action=logout status=SUCCESS
+2026-10-04 09:23:58 ERROR auth user=rahul action=login status=FAILED
+2026-10-04 09:24:16 LOG auth user=rahul action=login status=SUCCESS
+2026-10-04 09:25:33 LOG app user=rahul action=payment status=200
+2026-10-04 09:26:47 LOG app user=anita action=payment status=200
+2026-10-04 09:27:12 ERROR app user=priya action=get_orders status=500
+2026-10-04 09:28:29 LOG app user=vikas action=view_profile status=200
+2026-10-04 09:29:40 LOG app user=priya action=view_profile status=200
+2026-10-04 09:30:05 WARN app user=anita action=payment status=slow
+2026-10-04 09:31:18 LOG app user=anita action=payment status=200
+2026-10-04 09:32:27 LOG app user=rahul action=view_profile status=200
+2026-10-04 09:33:49 ERROR app user=vikas action=payment status=FAILED
+2026-10-04 09:34:11 LOG auth user=vikas action=login status=SUCCESS
+2026-10-04 09:35:22 LOG app user=vikas action=view_dashboard status=200
+2026-10-04 09:36:38 LOG app user=priya action=logout status=SUCCESS
+2026-10-04 09:37:54 ERROR auth user=anita action=login status=FAILED
+2026-10-04 09:38:17 LOG auth user=anita action=login status=SUCCESS
+2026-10-04 09:39:26 LOG app user=anita action=view_dashboard status=200
+2026-10-04 09:40:41 WARN app user=rahul action=get_orders status=slow
+2026-10-04 09:41:03 LOG app user=rahul action=get_orders status=200
+2026-10-04 09:42:15 LOG app user=vikas action=get_orders status=200
+2026-10-04 09:43:29 ERROR app user=rahul action=payment status=FAILED
+2026-10-04 09:44:46 LOG app user=rahul action=payment status=200
+2026-10-04 09:45:57 LOG app user=priya action=view_dashboard status=200
+2026-10-04 09:46:12 LOG app user=vikas action=view_profile status=200
+2026-10-04 09:47:38 WARN app user=priya action=search status=slow
+2026-10-04 09:48:05 LOG app user=priya action=search status=200
+2026-10-04 09:49:21 ERROR app user=anita action=get_orders status=500
+2026-10-04 09:50:44 LOG app user=anita action=get_orders status=200
+--
+
+
+
+TASK 12 - Real support question
+A user reports:
+"Payment failed for my account around 09:43."
+
+Use the log to answer:
+1. Which user had the payment failure around 09:43?
+suchethdza@Ubuntu:~/Level1$ awk '/action=payment/ && /status=FAILED/ && $2 >= "09:43:00" && $2 <= "09:43:59" {print $5}' app.log
+user=rahul ?
+
+
+2. What was the exact time?
+suchethdza@Ubuntu:~/Level1$ awk '/action=payment/ && /status=FAILED/ && $2 >= "09:43:00" && $2 <= "09:43:59" {print $5,$2}' app.log
+user=rahul 09:43:29
+
+
+3. Did a successful payment occur for that user afterward?
+suchethdza@Ubuntu:~/Level1$ awk '/action=payment/ && /status=FAILED/ && $2 >= "09:43:00" && $2 <= "09:43:59" {print $5,$2,$7}' app.log
+user=rahul 09:43:29 status=FAILED
+
+
+The log actually shows:
+
+09:43:29 ERROR app user=rahul action=payment status=FAILED
+09:44:46 INFO  app user=rahul action=payment status=200
+
+So:
+Yes, Rahul's payment succeeded afterward.
+
+This is a very important real-world troubleshooting lesson.
+
+You cannot answer:
+"Did it succeed afterward?"
+
+by looking only at the failed entry.
+You must search later entries for the same user and same action.
+This is exactly the kind of thinking you'll need in production support.
+
+
+
+TASK 13 - Another support question
+The application team says:
+"Please check whether there were any HTTP 500 errors."
+suchethdza@Ubuntu:~/Level1$ awk '/status=500/ {print}' app.log
+2026-10-04 09:10:15 ERROR app user=vikas action=get_orders status=500
+2026-10-04 09:27:12 ERROR app user=priya action=get_orders status=500
+2026-10-04 09:49:21 ERROR app user=anita action=get_orders status=500
+
+
+Show the matching log entries and tell them how many you found.
+suchethdza@Ubuntu:~/Level1$ awk '/status=500/ {count++} END {print"The number of HTTP error found",count}' app.log
+The number of HTTP error found 3
+
+
+
+RULES
+1. Use the terminal.
+2. Prefer Linux commands instead of manually reading every line.
+3. Start with simple commands.
+4. You may combine commands using | (pipe).
+5. Do not change app.log directly.
+
+SKILLS BEING PRACTICED
+grep
+awk
+sed
+sort
+uniq
+cut
+head
+tail
+pipes (|)
+basic log investigation

@@ -1,0 +1,81 @@
+DEVOPS / PRODUCTION SUPPORT LOG PRACTICE - DAY 1
+Level: Beginner
+Role: L1 Application / Production Support Engineer
+
+Scenario:
+You are working as an L1 support engineer. A team member gives you app.log and asks you to investigate a few basic issues using Linux commands.
+
+Important:
+Try to solve the problems yourself using grep, awk, sed, sort, uniq, cut, head and tail.
+Do not look for solutions online.
+When you are finished, send me your commands and I will review them.
+
+TASK 1 - Basic log filtering
+Show all lines containing ERROR.
+
+TASK 2 - Count errors
+Find the total number of ERROR entries.
+
+TASK 3 - Find warnings
+Show all WARN entries.
+
+TASK 4 - Count warnings
+Find the total number of WARN entries.
+
+TASK 5 - Find failed logins
+Show only lines where the action is login and the status is FAILED.
+
+TASK 6 - Extract usernames
+From the ERROR lines, print only the username.
+Try to avoid printing the complete log line.
+
+TASK 7 - Extract time
+From all ERROR lines, print only the time.
+
+TASK 8 - Find payment problems
+Show all lines related to the payment action.
+
+TASK 9 - Find server errors
+Show only entries where the status is 500.
+
+TASK 10 - Count problems by user
+Find which users appear in ERROR entries.
+Try to display the username and the number of ERROR entries for that user.
+
+TASK 11 - Small sed practice
+Create a modified output where INFO is replaced with LOG.
+Do not modify the original app.log.
+
+TASK 12 - Real support question
+A user reports:
+"Payment failed for my account around 09:43."
+
+Use the log to answer:
+1. Which user had the payment failure around 09:43?
+2. What was the exact time?
+3. Did a successful payment occur for that user afterward?
+
+TASK 13 - Another support question
+The application team says:
+"Please check whether there were any HTTP 500 errors."
+
+Show the matching log entries and tell them how many you found.
+
+RULES
+1. Use the terminal.
+2. Prefer Linux commands instead of manually reading every line.
+3. Start with simple commands.
+4. You may combine commands using | (pipe).
+5. Do not change app.log directly.
+
+SKILLS BEING PRACTICED
+grep
+awk
+sed
+sort
+uniq
+cut
+head
+tail
+pipes (|)
+basic log investigation
